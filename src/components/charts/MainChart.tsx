@@ -230,7 +230,8 @@ export default function MainChart({ records, range, granularity, reducedMotion, 
         type: 'inside',
         xAxisIndex: [0],
         filterMode: 'weakFilter',
-        zoomOnMouseWheel: true,
+        // 滚轮不劫持：让页面正常滚动；缩放走底部滑块 / 拖动，双击还原
+        zoomOnMouseWheel: false,
         moveOnMouseMove: true,
         moveOnMouseWheel: false,
       },
@@ -471,6 +472,18 @@ export default function MainChart({ records, range, granularity, reducedMotion, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [records, range, granularity, showChinext, showRatio, reducedMotion, isMobile, extremes, tooltipFormatter, rangeStartTs]);
 
+  /* ---------- 滚轮透传：图表区域不劫持滚轮，页面可直接滚动 ---------- */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    // 捕获阶段拦截 wheel 并阻止其继续传播，使 zrender 的 wheel 监听
+    // （会 preventDefault 导致页面无法滚动）收不到事件；
+    // 不调用 preventDefault，浏览器默认的页面滚动行为保持不变。
+    const onWheel = (e: WheelEvent) => e.stopPropagation();
+    container.addEventListener('wheel', onWheel, { capture: true, passive: true });
+    return () => container.removeEventListener('wheel', onWheel, { capture: true });
+  }, []);
+
   /* ---------- resize ---------- */
   useEffect(() => {
     const container = containerRef.current;
@@ -522,7 +535,7 @@ export default function MainChart({ records, range, granularity, reducedMotion, 
           创业板指数
         </button>
         <span className="ml-auto hidden text-xs text-inkSecondary sm:inline">
-          滚轮缩放 · 拖动查看 · 双击空白还原
+          拖动查看 · 滑块缩放 · 双击空白还原
         </span>
       </div>
 

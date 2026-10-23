@@ -228,6 +228,108 @@ function evaluateRebalance(
   };
 }
 
+interface Trade {
+  leg: 'growth' | 'dividend';
+  signalDate: string; // 信号日（收盘）
+  execDate: string; // 成交日（T+1）
+  ratioAtSignal: number;
+  exitSignalDate: string | null;
+  exitExecDate: string | null;
+  holdingDays: number | null;
+  legReturn: number | null; // 该腿持有期收益
+  altLegReturn: number | null; // 对侧腿同期收益（机会成本）
+}
+
+/** 从持仓序列提取交易明细（以 growth 进出为一次完整回合；期末未平仓标注 null） */
+function extractTrades(
+  name: string,
+  dates: string[],
+  chinext: number[],
+  divTr: number[],
+  ratio: number[],
+  positions: Leg[],
+): Trade[] {
+  const trades: Trade[] = [];
+  let open: { leg: 'growth' | 'dividend'; signalDate: string; execDate: string; ratioAtSignal: number; entryIdx: number } | null = null;
+
+  for (let i = 1; i < dates.length; i++) {
+    if (positions[i] === positions[i - 1]) continue;
+    // 平仓：i-1 是最后一天持有旧仓，信号发生在 i-1 收盘，i 开仓新腿
+    if (open && positions[i] !== open.leg) {
+      const legRet =
+        open.leg === 'growth' ? chinext[i] / chinext[open.entryIdx] - 1 : divTr[i] / divTr[open.entryIdx] - 1;
+      const altRet =
+        open.leg === 'growth' ? divTr[i] / divTr[open.entryIdx] - 1 : chinext[i] / chinext[open.entryIdx] - 1;
+      trades.push({
+        leg: open.leg,
+        signalDate: open.signalDate,
+        execDate: open.execDate,
+        ratioAtSignal: open.ratioAtSignal,
+        exitSignalDate: dates[i - 1],
+        exitExecDate: dates[i],
+        holdingDays: i - open.entryIdx,
+        legReturn: legRet,
+        altLegReturn: altRet,
+      });
+      open = null;
+    }
+    // 开仓
+    if (positions[i] === 'growth' || positions[i] === 'dividend') {
+      const leg = positions[i] === 'growth' ? ('growth' as const) : ('dividend' as const);
+      open = {
+        leg,
+        signalDate: dates[i - 1],
+        execDate: dates[i],
+        ratioAtSignal: ratio[i - 1],
+        entryIdx: i,
+      };
+    }
+  }
+  // 期末未平仓
+  if (open) {
+    const last = dates.length - 1;
+    const legRet =
+      open.leg === 'growth' ? chinext[last] / chinext[open.entryIdx] - 1 : divTr[last] / divTr[open.entryIdx] - 1;
+    const altRet =
+      open.leg === 'growth' ? divTr[last] / divTr[open.entryIdx] - 1 : chinext[last] / chinext[open.entryIdx] - 1;
+    trades.push({
+      leg: open.leg,
+      signalDate: open.signalDate,
+      execDate: open.execDate,
+      ratioAtSignal: open.ratioAtSignal,
+      exitSignalDate: null,
+      exitExecDate: null,
+      holdingDays: last - open.entryIdx,
+      legReturn: legRet,
+      altLegReturn: altRet,
+    });
+  }
+  void name;
+  return trades;
+}
+
+/** 阈值附近的"接近"机会统计：精确穿越次数与接近区间停留天数 */
+function zoneStats(ratio: number[], low: number, high: number) {
+  let crossDownLow = 0;
+  let crossUpHigh = 0;
+  let daysNearLow = 0;
+  let daysNearHigh = 0;
+  for (let i = 1; i < ratio.length; i++) {
+    if (ratio[i] < low && ratio[i - 1] >= low) crossDownLow++;
+    if (ratio[i] > high && ratio[i - 1] <= high) crossUpHigh++;
+    if (ratio[i] >= low && ratio[i] <= low + 0.05) daysNearLow++;
+    if (ratio[i] <= high && ratio[i] >= high - 0.05) daysNearHigh++;
+  }
+  return {
+    crossDownLow,
+    crossUpHigh,
+    daysNearLow, // 比值处于 [low, low+0.05] 的交易日数
+    daysNearHigh, // 比值处于 [high-0.05, high] 的交易日数
+    min: Math.min(...ratio),
+    max: Math.max(...ratio),
+  };
+}
+
 function fmtRow(cols: (string | number)[], widths: number[]): string {
   return cols
     .map((c, i) => {
@@ -343,6 +445,43 @@ async function main(): Promise<void> {
     commonMetrics,
   );
 
+  const tradeLogs: Record<string, Trade[]> = {
+    S1: extractTrades('S1', dates, chinext, divTr, priceRatio, strategies[0].positions),
+    S2: extractTrades('S2', dates, chinext, divTr, trRatio, strategies[1].positions),
+    S3: extractTrades('S3', dates, chinext, divTr, trRatio, strategies[2].positions),
+  };
+  const zone = {
+    price: zoneStats(priceRatio, FIXED_LOW, FIXED_HIGH),
+    tr: zoneStats(trRatio, FIXED_LOW, FIXED_HIGH),
+  };
+
+  const printTrades = (title: string, trades: Trade[]) => {
+    console.log(`\n--- ${title}：共 ${trades.length} 笔 ---`);
+    for (const t of trades) {
+      const side = t.leg === 'growth' ? '进创业板' : '进红利';
+      const hold = t.holdingDays === null ? '持仓中' : `${t.holdingDays}日`;
+      const ret =
+        t.legReturn === null
+          ? '—'
+          : `${(t.legReturn * 100).toFixed(1)}%（对侧同期 ${t.altLegReturn === null ? '—' : `${(t.altLegReturn * 100).toFixed(1)}%`}）`;
+      console.log(
+        `${side}｜信号 ${t.signalDate}（比值${t.ratioAtSignal.toFixed(3)}）→ 成交 ${t.execDate}` +
+          (t.exitExecDate ? `｜离场信号 ${t.exitSignalDate} → 成交 ${t.exitExecDate}` : '｜未平仓') +
+          `｜持有 ${hold}｜收益 ${ret}`,
+      );
+    }
+  };
+  printTrades('S1 价格比值固定阈值（页面口径）', tradeLogs.S1);
+  printTrades('S2 全收益比值固定阈值（修正口径）', tradeLogs.S2);
+  console.log(
+    `\n[机会统计] 价格比值：下穿0.3 ${zone.price.crossDownLow} 次，上穿0.7 ${zone.price.crossUpHigh} 次，` +
+      `停留0.30-0.35带 ${zone.price.daysNearLow} 日、0.65-0.70带 ${zone.price.daysNearHigh} 日，全史区间 [${zone.price.min.toFixed(3)}, ${zone.price.max.toFixed(3)}]`,
+  );
+  console.log(
+    `[机会统计] 全收益比值：下穿0.3 ${zone.tr.crossDownLow} 次，上穿0.7 ${zone.tr.crossUpHigh} 次，` +
+      `停留0.30-0.35带 ${zone.tr.daysNearLow} 日、0.65-0.70带 ${zone.tr.daysNearHigh} 日，全史区间 [${zone.tr.min.toFixed(3)}, ${zone.tr.max.toFixed(3)}]`,
+  );
+
   const result = {
     generatedAt: new Date().toISOString(),
     caliber: {
@@ -358,6 +497,8 @@ async function main(): Promise<void> {
     alignedRange: [dates[0], dates[dates.length - 1]] as [string, string],
     fullWindow: allMetrics,
     commonWindow: commonMetrics,
+    trades: tradeLogs,
+    zoneStats: zone,
   };
   fs.mkdirSync(path.dirname(RESULT_PATH), { recursive: true });
   fs.writeFileSync(RESULT_PATH, JSON.stringify(result, null, 2));

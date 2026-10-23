@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "data:init": "tsx scripts/initialize-data.ts",
     "data:update": "tsx scripts/update-data.ts",
-    "data:validate": "tsx scripts/validate-data.ts"
+    "data:validate": "tsx scripts/validate-data.ts",
+    "backtest": "tsx scripts/backtest.ts"
   },
   "dependencies": {
     "echarts": "^5.5.1",

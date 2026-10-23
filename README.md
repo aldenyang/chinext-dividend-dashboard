@@ -108,12 +108,29 @@ src/
   utils/            calculations/ratio（比值、状态、极值）/ formatting/format
   types/            market.ts（脚本与前端共用类型）
 scripts/
-  datasource/       eastmoney.ts（主源）/ tencent.ts（备源）/ index.ts（降级选择器）
+  datasource/       eastmoney.ts（主源）/ tencent.ts（备源）/ csindex.ts（中证官网，全收益指数）/ index.ts（降级选择器）
   lib/dataCore.ts   合并、校验、原子写入
-  initialize-data.ts / update-data.ts / validate-data.ts
+  initialize-data.ts / update-data.ts / validate-data.ts / backtest.ts
 public/data/        historical.json + metadata.json（随仓库保存）
+data/               h00922.json（全收益指数缓存）+ backtest-result.json（回测结果）
 .github/workflows/  update-data.yml / deploy.yml / validate-data.yml
 ```
+
+## 风格切换回测（研究模块）
+
+`npm run backtest` 运行 `scripts/backtest.ts`，对"比值低位持成长、高位持红利"的风格切换做历史回测。
+
+关键口径：
+- 收益腿：创业板 399006（价格指数，股息率低近似全收益）× 中证红利**全收益** H00922（中证官网一手数据，含股息再投资）。价格指数 000922 每年被股息侵蚀约 4-5pp，直接用它回测会引入系统性口径漂移。
+- 策略：S1 固定 0.3/0.7（价格比值，即页面参考线口径）；S2 固定 0.3/0.7（全收益比值）；S3 滚动 5 年分位 20%/80%（全收益比值）。
+- 执行：T 收盘信号 T+1 持仓，换仓单边成本 0.15%；基准为 50/50 年度再平衡。
+
+主要结论（详见 data/backtest-result.json）：
+- 页面的 0.3/0.7 参考线在修正分红漂移后（S2）几乎不触发交易——说明这两条线很大程度上是价格指数口径漂移的产物，而非风格极值。
+- 没有任何策略稳定跑赢 50/50 年度再平衡；全历史窗口 S1 的优势来自 16 年里仅 2 次换仓的偶然性，不可外推。
+- 参考线定位为观察工具是合理的；不建议据此做机械化切换。
+
+回滚方式：回测模块为独立提交，`git revert <该提交>` 可整体移除，不影响仪表盘主功能。
 
 ## 已知限制
 

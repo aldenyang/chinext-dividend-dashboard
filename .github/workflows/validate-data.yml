@@ -1,0 +1,40 @@
+name: Weekly Data Integrity Check
+
+# 每周日凌晨（北京时间）做一次全量完整性检查，发现早期缺口或数据源修订
+on:
+  schedule:
+    - cron: '0 20 * * 6' # UTC 周六 20:00 = 北京时间周日 04:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Validate and auto-fix
+        run: |
+          set +e
+          npm run data:validate -- --fix
+          code=$?
+          if [ $code -ne 0 ] && [ ! -f public/data/.fixed ]; then
+            echo "::warning::完整性检查发现问题且未自动修复，请人工复核"
+          fi
+          exit 0
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- public/data; then
+            git add public/data
+            git commit -m "fix(data): weekly integrity check auto-fix"
+            git pull --rebase origin ${GITHUB_REF_NAME} || true
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi

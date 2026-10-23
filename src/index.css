@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f8f9fc;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', Roboto, sans-serif;
+  /* 刘海屏安全区域 */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: none;
+}
+
+/* 手机端防止页面整体横向溢出 */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 微信内置浏览器兼容：重置 button 样式 */
+button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 减少动态效果偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ECharts 容器：允许页面纵向滚动与双指缩放图表 */
+canvas {
+  touch-action: pan-y pinch-zoom;
+}

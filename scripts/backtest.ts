@@ -100,10 +100,10 @@ function positionsFromSignals(signals: (Leg | null)[]): Leg[] {
   return pos;
 }
 
-function fixedThresholdSignals(ratio: number[]): (Leg | null)[] {
+function fixedThresholdSignals(ratio: number[], low: number, high: number): (Leg | null)[] {
   return ratio.map((r) => {
-    if (r < FIXED_LOW) return 'growth' as Leg;
-    if (r > FIXED_HIGH) return 'dividend' as Leg;
+    if (r < low) return 'growth' as Leg;
+    if (r > high) return 'dividend' as Leg;
     return null; // 区间内维持原状
   });
 }
@@ -339,6 +339,30 @@ function fmtRow(cols: (string | number)[], widths: number[]): string {
     .join('  ');
 }
 
+/** 阈值邻域网格扫描：检验 0.35/0.65 是稳健平台还是孤峰（孤峰=过拟合信号） */
+function gridSearch(
+  dates: string[],
+  gRet: number[],
+  dRet: number[],
+  priceRatio: number[],
+): void {
+  const lows = [0.3, 0.32, 0.35, 0.38, 0.4];
+  const highs = [0.6, 0.63, 0.65, 0.68, 0.7];
+  const header = 'low\\high ' + highs.map((h) => `${h.toFixed(2)}`.padStart(9)).join('');
+  console.log(`\n=== 网格扫描：固定阈值（价格比值）CAGR%，行=入场阈值，列=离场阈值 ===`);
+  console.log(header);
+  for (const low of lows) {
+    const cells = highs.map((high) => {
+      const pos = positionsFromSignals(fixedThresholdSignals(priceRatio, low, high));
+      const m = evaluate('', dates, gRet, dRet, pos, 1);
+      const switches = m.switches;
+      return `${(m.cagr * 100).toFixed(1)}%(${switches})`.padStart(9);
+    });
+    console.log(`${low.toFixed(2)}     ${cells.join('')}`);
+  }
+  console.log('（括号内为换手次数；次数<3 的格子统计意义极弱）');
+}
+
 async function main(): Promise<void> {
   const hist = JSON.parse(fs.readFileSync(HISTORICAL_PATH, 'utf8')) as DailyRecord[];
   const tr = await loadTrIndex();
@@ -382,17 +406,32 @@ async function main(): Promise<void> {
   const strategies: Array<{ name: string; positions: Leg[]; startIdx: number }> = [
     {
       name: 'S1 固定0.3/0.7（价格比值，现页面口径）',
-      positions: positionsFromSignals(fixedThresholdSignals(priceRatio)),
+      positions: positionsFromSignals(fixedThresholdSignals(priceRatio, FIXED_LOW, FIXED_HIGH)),
       startIdx: 1,
     },
     {
       name: 'S2 固定0.3/0.7（全收益比值）',
-      positions: positionsFromSignals(fixedThresholdSignals(trRatio)),
+      positions: positionsFromSignals(fixedThresholdSignals(trRatio, FIXED_LOW, FIXED_HIGH)),
       startIdx: 1,
     },
     {
       name: 'S3 滚动5年分位20/80（全收益比值）',
       positions: positionsFromSignals(rollingPercentileSignals(trRatio)),
+      startIdx: Math.min(ROLL_WINDOW, dates.length - 2),
+    },
+    {
+      name: 'S4 扩带固定0.35/0.65（价格比值）',
+      positions: positionsFromSignals(fixedThresholdSignals(priceRatio, 0.35, 0.65)),
+      startIdx: 1,
+    },
+    {
+      name: 'S5 扩带固定0.35/0.65（全收益比值）',
+      positions: positionsFromSignals(fixedThresholdSignals(trRatio, 0.35, 0.65)),
+      startIdx: 1,
+    },
+    {
+      name: 'S6 滚动5年分位20/80（价格比值）',
+      positions: positionsFromSignals(rollingPercentileSignals(priceRatio)),
       startIdx: Math.min(ROLL_WINDOW, dates.length - 2),
     },
   ];
@@ -449,6 +488,9 @@ async function main(): Promise<void> {
     S1: extractTrades('S1', dates, chinext, divTr, priceRatio, strategies[0].positions),
     S2: extractTrades('S2', dates, chinext, divTr, trRatio, strategies[1].positions),
     S3: extractTrades('S3', dates, chinext, divTr, trRatio, strategies[2].positions),
+    S4: extractTrades('S4', dates, chinext, divTr, priceRatio, strategies[3].positions),
+    S5: extractTrades('S5', dates, chinext, divTr, trRatio, strategies[4].positions),
+    S6: extractTrades('S6', dates, chinext, divTr, priceRatio, strategies[5].positions),
   };
   const zone = {
     price: zoneStats(priceRatio, FIXED_LOW, FIXED_HIGH),
@@ -471,8 +513,8 @@ async function main(): Promise<void> {
       );
     }
   };
-  printTrades('S1 价格比值固定阈值（页面口径）', tradeLogs.S1);
-  printTrades('S2 全收益比值固定阈值（修正口径）', tradeLogs.S2);
+  printTrades('S4 扩带0.35/0.65（价格比值）', tradeLogs.S4);
+  printTrades('S6 滚动分位20/80（价格比值）', tradeLogs.S6);
   console.log(
     `\n[机会统计] 价格比值：下穿0.3 ${zone.price.crossDownLow} 次，上穿0.7 ${zone.price.crossUpHigh} 次，` +
       `停留0.30-0.35带 ${zone.price.daysNearLow} 日、0.65-0.70带 ${zone.price.daysNearHigh} 日，全史区间 [${zone.price.min.toFixed(3)}, ${zone.price.max.toFixed(3)}]`,
@@ -481,6 +523,8 @@ async function main(): Promise<void> {
     `[机会统计] 全收益比值：下穿0.3 ${zone.tr.crossDownLow} 次，上穿0.7 ${zone.tr.crossUpHigh} 次，` +
       `停留0.30-0.35带 ${zone.tr.daysNearLow} 日、0.65-0.70带 ${zone.tr.daysNearHigh} 日，全史区间 [${zone.tr.min.toFixed(3)}, ${zone.tr.max.toFixed(3)}]`,
   );
+
+  gridSearch(dates, gRet, dRet, priceRatio);
 
   const result = {
     generatedAt: new Date().toISOString(),

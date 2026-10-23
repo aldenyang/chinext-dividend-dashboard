@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T13:56:34.559Z",
+  "generatedAt": "2026-10-23T14:07:20.099Z",
   "caliber": {
     "growthLeg": "399006 创业板指（价格指数，近似全收益）",
     "dividendLeg": "H00922 中证红利全收益（中证官网一手数据）",
@@ -44,6 +44,39 @@
       "maxDrawdown": 0.5167444987873584,
       "switches": 4,
       "finalMultiple": 2.2566567341753654,
+      "evalStart": "2015-06-15",
+      "evalEnd": "2026-10-23",
+      "evalDays": 2759
+    },
+    {
+      "name": "S4 扩带固定0.35/0.65（价格比值）",
+      "cagr": 0.19278945152624694,
+      "vol": 0.2651759050114975,
+      "maxDrawdown": 0.5185161154276638,
+      "switches": 6,
+      "finalMultiple": 17.710906975237815,
+      "evalStart": "2010-06-03",
+      "evalEnd": "2026-10-23",
+      "evalDays": 3978
+    },
+    {
+      "name": "S5 扩带固定0.35/0.65（全收益比值）",
+      "cagr": 0.0626206075887179,
+      "vol": 0.3052034663832067,
+      "maxDrawdown": 0.6973997112185327,
+      "switches": 0,
+      "finalMultiple": 2.691855234931817,
+      "evalStart": "2010-06-03",
+      "evalEnd": "2026-10-23",
+      "evalDays": 3978
+    },
+    {
+      "name": "S6 滚动5年分位20/80（价格比值）",
+      "cagr": 0.08360069409206439,
+      "vol": 0.2529097722791814,
+      "maxDrawdown": 0.4874089271883325,
+      "switches": 4,
+      "finalMultiple": 2.4790200238178226,
       "evalStart": "2015-06-15",
       "evalEnd": "2026-10-23",
       "evalDays": 2759
@@ -112,6 +145,39 @@
       "maxDrawdown": 0.5167444987873584,
       "switches": 4,
       "finalMultiple": 2.2566567341753654,
+      "evalStart": "2015-06-15",
+      "evalEnd": "2026-10-23",
+      "evalDays": 2759
+    },
+    {
+      "name": "S4 扩带固定0.35/0.65（价格比值）｜同窗口",
+      "cagr": 0.13103136815251748,
+      "vol": 0.2597248104487229,
+      "maxDrawdown": 0.45659296257350923,
+      "switches": 4,
+      "finalMultiple": 4.024000523957464,
+      "evalStart": "2015-06-15",
+      "evalEnd": "2026-10-23",
+      "evalDays": 2759
+    },
+    {
+      "name": "S5 扩带固定0.35/0.65（全收益比值）｜同窗口",
+      "cagr": -0.03249680226398144,
+      "vol": 0.3078926357407253,
+      "maxDrawdown": 0.6909949714209518,
+      "switches": 0,
+      "finalMultiple": 0.6882819491705792,
+      "evalStart": "2015-06-15",
+      "evalEnd": "2026-10-23",
+      "evalDays": 2759
+    },
+    {
+      "name": "S6 滚动5年分位20/80（价格比值）｜同窗口",
+      "cagr": 0.08360069409206439,
+      "vol": 0.2529097722791814,
+      "maxDrawdown": 0.4874089271883325,
+      "switches": 4,
+      "finalMultiple": 2.4790200238178226,
       "evalStart": "2015-06-15",
       "evalEnd": "2026-10-23",
       "evalDays": 2759
@@ -221,6 +287,144 @@
         "holdingDays": 113,
         "legReturn": -0.0296612231532567,
         "altLegReturn": -0.292937807714699
+      }
+    ],
+    "S4": [
+      {
+        "leg": "growth",
+        "signalDate": "2010-07-16",
+        "execDate": "2010-07-19",
+        "ratioAtSignal": 0.3478360867007656,
+        "exitSignalDate": "2014-01-15",
+        "exitExecDate": "2014-01-16",
+        "holdingDays": 847,
+        "legReturn": 0.5364369103429443,
+        "altLegReturn": -0.09453945971765199
+      },
+      {
+        "leg": "dividend",
+        "signalDate": "2014-01-15",
+        "execDate": "2014-01-16",
+        "ratioAtSignal": 0.655544233441408,
+        "exitSignalDate": "2018-01-15",
+        "exitExecDate": "2018-01-16",
+        "holdingDays": 977,
+        "legReturn": 1.6401266068556732,
+        "altLegReturn": 0.23971444135439657
+      },
+      {
+        "leg": "growth",
+        "signalDate": "2018-01-15",
+        "execDate": "2018-01-16",
+        "ratioAtSignal": 0.3495532282762419,
+        "exitSignalDate": "2021-01-04",
+        "exitExecDate": "2021-01-05",
+        "holdingDays": 721,
+        "legReturn": 0.791154024051804,
+        "altLegReturn": 0.042021540826832515
+      },
+      {
+        "leg": "dividend",
+        "signalDate": "2021-01-04",
+        "execDate": "2021-01-05",
+        "ratioAtSignal": 0.6675131361803912,
+        "exitSignalDate": "2024-01-05",
+        "exitExecDate": "2024-01-08",
+        "holdingDays": 730,
+        "legReturn": 0.26434892844111957,
+        "altLegReturn": -0.4369201867023028
+      },
+      {
+        "leg": "growth",
+        "signalDate": "2024-01-05",
+        "execDate": "2024-01-08",
+        "ratioAtSignal": 0.34820414766877483,
+        "exitSignalDate": "2026-04-22",
+        "exitExecDate": "2026-04-23",
+        "holdingDays": 552,
+        "legReturn": 1.132669498569717,
+        "altLegReturn": 0.27903016183629314
+      },
+      {
+        "leg": "dividend",
+        "signalDate": "2026-04-22",
+        "execDate": "2026-04-23",
+        "ratioAtSignal": 0.6523838828450137,
+        "exitSignalDate": null,
+        "exitExecDate": null,
+        "holdingDays": 121,
+        "legReturn": -0.031275243718971724,
+        "altLegReturn": -0.27851622874806803
+      }
+    ],
+    "S5": [
+      {
+        "leg": "growth",
+        "signalDate": "2010-06-02",
+        "execDate": "2010-06-03",
+        "ratioAtSignal": 0.32048513794965416,
+        "exitSignalDate": null,
+        "exitExecDate": null,
+        "holdingDays": 3977,
+        "legReturn": 1.6884175986634533,
+        "altLegReturn": 2.8060836255872035
+      }
+    ],
+    "S6": [
+      {
+        "leg": "dividend",
+        "signalDate": "2015-06-12",
+        "execDate": "2015-06-15",
+        "ratioAtSignal": 0.6262964497592595,
+        "exitSignalDate": "2017-06-01",
+        "exitExecDate": "2017-06-02",
+        "holdingDays": 478,
+        "legReturn": -0.25324280103099384,
+        "altLegReturn": -0.5276201762431583
+      },
+      {
+        "leg": "growth",
+        "signalDate": "2017-06-01",
+        "execDate": "2017-06-02",
+        "ratioAtSignal": 0.39910734283253557,
+        "exitSignalDate": "2020-06-19",
+        "exitExecDate": "2020-06-22",
+        "holdingDays": 745,
+        "legReturn": 0.3419094694518108,
+        "altLegReturn": 0.06990584077571227
+      },
+      {
+        "leg": "dividend",
+        "signalDate": "2020-06-19",
+        "execDate": "2020-06-22",
+        "ratioAtSignal": 0.5636532418961708,
+        "exitSignalDate": "2023-09-19",
+        "exitExecDate": "2023-09-20",
+        "holdingDays": 791,
+        "legReturn": 0.5152150211805924,
+        "altLegReturn": -0.15177047053199488
+      },
+      {
+        "leg": "growth",
+        "signalDate": "2023-09-19",
+        "execDate": "2023-09-20",
+        "ratioAtSignal": 0.38388299452734886,
+        "exitSignalDate": "2025-09-25",
+        "exitExecDate": "2025-09-26",
+        "holdingDays": 489,
+        "legReturn": 0.585835052583908,
+        "altLegReturn": 0.1556199895580277
+      },
+      {
+        "leg": "dividend",
+        "signalDate": "2025-09-25",
+        "execDate": "2025-09-26",
+        "ratioAtSignal": 0.5947530654295278,
+        "exitSignalDate": null,
+        "exitExecDate": null,
+        "holdingDays": 255,
+        "legReturn": 0.036063130955075406,
+        "altLegReturn": -0.1483184358073698
       }
     ]
   },

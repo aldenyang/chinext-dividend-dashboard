@@ -22,6 +22,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchCsindexDailyClose } from './datasource/csindex.ts';
+// 策略参数单一配置源（与前端 src/config/strategy.ts 同一份）
+import { STRATEGY } from '../src/config/strategy.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -29,11 +31,11 @@ const HISTORICAL_PATH = path.join(ROOT, 'public/data/historical.json');
 const TR_CACHE_PATH = path.join(ROOT, 'data/h00922.json');
 const RESULT_PATH = path.join(ROOT, 'data/backtest-result.json');
 
-const COST = 0.0015; // 单边换仓成本 0.15%
+const COST = STRATEGY.execution.oneSideCost; // 单边换仓成本
 const TRADING_DAYS = 244;
-const ROLL_WINDOW = Math.round(5 * TRADING_DAYS); // S3 滚动窗口：约 5 年
-const ROLL_LOW = 0.2;
-const ROLL_HIGH = 0.8;
+const ROLL_WINDOW = STRATEGY.s6.windowDays; // S3/S6 滚动窗口：约 5 年
+const ROLL_LOW = STRATEGY.s6.lowPct;
+const ROLL_HIGH = STRATEGY.s6.highPct;
 const FIXED_LOW = 0.3;
 const FIXED_HIGH = 0.7;
 
@@ -421,12 +423,12 @@ async function main(): Promise<void> {
     },
     {
       name: 'S4 扩带固定0.35/0.65（价格比值）',
-      positions: positionsFromSignals(fixedThresholdSignals(priceRatio, 0.35, 0.65)),
+      positions: positionsFromSignals(fixedThresholdSignals(priceRatio, STRATEGY.s4.low, STRATEGY.s4.high)),
       startIdx: 1,
     },
     {
       name: 'S5 扩带固定0.35/0.65（全收益比值）',
-      positions: positionsFromSignals(fixedThresholdSignals(trRatio, 0.35, 0.65)),
+      positions: positionsFromSignals(fixedThresholdSignals(trRatio, STRATEGY.s4.low, STRATEGY.s4.high)),
       startIdx: 1,
     },
     {

@@ -10,7 +10,8 @@
     "data:init": "tsx scripts/initialize-data.ts",
     "data:update": "tsx scripts/update-data.ts",
     "data:validate": "tsx scripts/validate-data.ts",
-    "backtest": "tsx scripts/backtest.ts"
+    "backtest": "tsx scripts/backtest.ts",
+    "backtest:grid": "tsx scripts/backtest-grid.ts"
   },
   "dependencies": {
     "echarts": "^5.5.1",

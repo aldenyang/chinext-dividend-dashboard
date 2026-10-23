@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-10-23T14:17:04.807Z",
+  "caliber": {
+    "window": [
+      "2021-10-25",
+      "2026-10-23"
+    ],
+    "tradingDays": 1212,
+    "growthLeg": "399006 创业板指（价格指数）",
+    "dividendLeg": "H00922 中证红利全收益（中证官网）",
+    "monthlyDca": 10000,
+    "initialGridPool": 200000,
+    "gridTranches": 5,
+    "gridStep": 0.02,
+    "costOneSide": 0.0015,
+    "signalRule": "S4 价格比值 <0.35 入场 / >0.65 离场，T+1 执行",
+    "disclaimer": "研究用途，非投资建议；历史表现不预示未来收益"
+  },
+  "strategy": {
+    "name": "S4 策略 + 网格定投",
+    "finalValue": 1317060.0052823424,
+    "totalInvested": 810000,
+    "totalReturn": 0.6260000065214104,
+    "xirr": 0.15615611003340882,
+    "maxDrawdown": 0.14593027557910077,
+    "dcaCount": 61,
+    "gridBuys": 3,
+    "gridSells": 3,
+    "stateSwitches": 2,
+    "endMainLeg": "dividend",
+    "endPoolLeg": "dividend",
+    "endGridLots": 0,
+    "endCash": 0,
+    "events": [
+      "[init] 2021-10-25 网格池 200000 元买入红利",
+      "[switch] 2024-01-08（前日比值 0.348）→ 切至创业板",
+      "[grid-buy] 2024-01-29 比值 0.314 加买 40000 元创业板",
+      "[grid-sell] 2024-03-01 比值 0.337 卖出一份网格份额",
+      "[grid-buy] 2024-04-16 比值 0.316 加买 40000 元创业板",
+      "[grid-sell] 2024-04-29 比值 0.343 卖出一份网格份额",
+      "[grid-buy] 2024-05-21 比值 0.323 加买 40000 元创业板",
+      "[grid-sell] 2024-09-27 比值 0.352 卖出一份网格份额",
+      "[switch] 2026-04-23（前日比值 0.652）→ 切至红利"
+    ]
+  },
+  "benchmarks": [
+    {
+      "name": "基准：50/50 定投（年度再平衡）",
+      "finalValue": 926310.8715500261,
+      "totalInvested": 810000,
+      "totalReturn": 0.14359366858027922,
+      "xirr": 0.042612887743514724,
+      "maxDrawdown": 0.19060991139221284
+    },
+    {
+      "name": "基准：全红利定投",
+      "finalValue": 981668.4121063587,
+      "totalInvested": 810000,
+      "totalReturn": 0.21193631124241818,
+      "xirr": 0.061144387615222964,
+      "maxDrawdown": 0.12487065103029504
+    },
+    {
+      "name": "基准：全创业板定投",
+      "finalValue": 841363.5870956569,
+      "totalInvested": 810000,
+      "totalReturn": 0.03872047789587274,
+      "xirr": 0.012036504478576411,
+      "maxDrawdown": 0.3879438098167378
+    }
+  ]
+}

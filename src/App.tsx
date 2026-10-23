@@ -5,6 +5,7 @@ import { useMarketData } from './hooks/useMarketData';
 import { useMediaQuery, useReducedMotion } from './hooks/useMediaQuery';
 import Header from './components/Header/Header';
 import MetricCards from './components/MetricCards/MetricCards';
+import StrategyPanel from './components/StrategyPanel/StrategyPanel';
 import TimeRangeSelector from './components/TimeRangeSelector/TimeRangeSelector';
 import ExplanationModal from './components/ExplanationModal/ExplanationModal';
 import MainChart, { type RangeKey, type Granularity } from './components/charts/MainChart';
@@ -60,6 +61,8 @@ export default function App() {
             <div className="mt-5 sm:mt-7">
               <MetricCards records={records} meta={meta} />
             </div>
+
+            <StrategyPanel records={records} />
 
             <motion.section
               initial={reduced ? false : { opacity: 0, y: 16 }}

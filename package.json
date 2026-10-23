@@ -11,7 +11,8 @@
     "data:update": "tsx scripts/update-data.ts",
     "data:validate": "tsx scripts/validate-data.ts",
     "backtest": "tsx scripts/backtest.ts",
-    "backtest:grid": "tsx scripts/backtest-grid.ts"
+    "backtest:grid": "tsx scripts/backtest-grid.ts",
+    "backtest:s6-5y": "tsx scripts/backtest-s6-5y.ts"
   },
   "dependencies": {
     "echarts": "^5.5.1",

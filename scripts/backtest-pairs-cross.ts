@@ -73,7 +73,10 @@ async function loadQfq(symbol: string): Promise<Quote[]> {
         out.push({ date: r[0], close });
       }
     }
-    segBegin = `${y + 1}-01-01`;
+    // 下一段从 segLast 次日开始（避免跳段丢数据）
+    const d = new Date(`${segLast}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 1);
+    segBegin = d.toISOString().slice(0, 10);
   }
   // 去重排序
   const seen = new Set<string>();

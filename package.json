@@ -14,7 +14,8 @@
     "backtest:grid": "tsx scripts/backtest-grid.ts",
     "backtest:s6-5y": "tsx scripts/backtest-s6-5y.ts",
     "backtest:pairs": "tsx scripts/backtest-pairs.ts",
-    "backtest:pairs-cross": "tsx scripts/backtest-pairs-cross.ts"
+    "backtest:pairs-cross": "tsx scripts/backtest-pairs-cross.ts",
+    "backtest:hk": "tsx scripts/backtest-hk.ts"
   },
   "dependencies": {
     "echarts": "^5.5.1",

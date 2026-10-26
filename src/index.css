@@ -19,7 +19,14 @@ body {
 }
 
 /* 手机端防止页面整体横向溢出 */
-html,
+/* 注意：overflow-x: hidden 绝不能放在 html 上——Chromium 会因此让视口的
+   滚轮滚动完全失效（wheel 被 body 滚动容器吞掉且不再链式传递，
+   键盘/滚动条不受影响，故此前极难察觉）。横向裁剪只保留在 body 上，
+   实测不影响滚轮与触摸板滚动。 */
+html {
+  max-width: 100%;
+}
+
 body {
   max-width: 100%;
   overflow-x: hidden;

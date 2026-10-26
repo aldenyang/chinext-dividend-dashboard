@@ -63,6 +63,14 @@ jobs:
             echo "数据已更新并推送，将自动触发部署"
           fi
 
+      - name: Trigger Pages deploy
+        # 注意：GITHUB_TOKEN 的 push 不会触发其他工作流（防递归），
+        # 因此数据推送成功后需显式以 workflow_dispatch 方式触发部署
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main -R ${{ github.repository }}
+
       - name: Failure notice
         if: steps.update.outputs.exit_code != '0'
         run: |

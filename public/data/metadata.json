@@ -1,24 +1,24 @@
 {
-  "source": "tencent (fallback from eastmoney)",
-  "sourceName": "腾讯财经（主源 东方财富 不可用时自动降级）",
+  "source": "eastmoney",
+  "sourceName": "东方财富",
   "caliber": "两个指数相同交易日的收盘点位（价格指数，未复权）相除得到相对比值；比值保留 6 位小数参与计算，界面展示 3 位小数",
   "indices": {
     "chinext": {
       "code": "399006.SZ",
       "name": "创业板指数",
-      "providerCode": "sz399006"
+      "providerCode": "399006"
     },
     "dividend": {
       "code": "000922.SH",
       "name": "中证红利指数",
-      "providerCode": "sh000922"
+      "providerCode": "000922"
     }
   },
   "timelineStart": "2009-10-30",
   "dataStartDate": "2009-10-30",
-  "ratioStartDate": "2010-06-02",
-  "latestTradeDate": "2026-10-23",
-  "lastUpdated": "2026-10-24T22:08:57.935Z",
-  "version": "2026-10-23-4124-fixed",
-  "count": 4124
+  "ratioStartDate": "2010-06-01",
+  "latestTradeDate": "2026-10-26",
+  "lastUpdated": "2026-10-26T08:24:13.359Z",
+  "version": "2026-10-26-4125-siimka",
+  "count": 4125
 }

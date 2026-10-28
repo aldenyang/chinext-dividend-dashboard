@@ -1,0 +1,88 @@
+{
+ "cash": 1000000,
+ "positions": {},
+ "pending": [
+  {
+   "action": "buy",
+   "code": "123109",
+   "name": "昌红转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+19pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "118052",
+   "name": "浩瀚转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+18pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "123080",
+   "name": "海波转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+16pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "118039",
+   "name": "煜邦转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+16pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "113665",
+   "name": "汇通转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+15pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "123224",
+   "name": "宇邦转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+12pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "118035",
+   "name": "国力转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+12pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "113680",
+   "name": "丽岛转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+11pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "113686",
+   "name": "泰瑞转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+11pp",
+   "signal_date": "2026-10-27"
+  },
+  {
+   "action": "buy",
+   "code": "118007",
+   "name": "山石转债",
+   "amount": 100000.0,
+   "reason": "溢价5日+11pp",
+   "signal_date": "2026-10-27"
+  }
+ ],
+ "last_date": "2026-10-27",
+ "started": "2026-10-27"
+}

@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  actions: write # 允许本工作流以 workflow_dispatch 触发 deploy.yml
 
 concurrency:
   group: update-data

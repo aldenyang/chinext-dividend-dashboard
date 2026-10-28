@@ -20,11 +20,19 @@ interface PaperData {
   updated: string;
   nav_now: number;
   cash: number;
-  nav: { date: string; nav: number; ret: number; bm_close: number | null }[];
+  benchmarks?: Record<string, string>;
+  nav: { date: string; nav: number; ret: number; bm_close: number | null; bm?: Record<string, number> }[];
   positions: { code: string; name: string; shares: number; cost: number; price: number | null; pnl_pct: number; entry_date: string }[];
   pending: { action: string; code: string; name: string; reason?: string; amount?: number; signal_date: string }[];
   trades: { date: string; action: string; code: string; name: string; fill_price?: number; shares?: number; amount?: number; reason?: string; pnl?: number }[];
 }
+
+const BM_COLORS: Record<string, string> = {
+  sh000832: '#8a94a6',
+  sz399006: '#e6772e',
+  sh000905: '#3b82c4',
+  sh000922: '#7a5ea8',
+};
 
 const fmt = (v: number) => v.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
 
@@ -43,12 +51,23 @@ export default function CbPaperPanel() {
   const option = useMemo<EChartsOption | null>(() => {
     if (!data || data.nav.length === 0) return null;
     const base = data.nav[0].nav;
-    const bm0 = data.nav.find((x) => x.bm_close != null)?.bm_close ?? null;
     const dates = data.nav.map((x) => x.date);
     const rets = data.nav.map((x) => +((x.nav / base) * 100).toFixed(2));
-    const bm = bm0
-      ? data.nav.map((x) => (x.bm_close != null ? +((x.bm_close / bm0) * 100).toFixed(2) : null))
-      : [];
+    // 宽基基准: 各自归一化到首个有效收盘=100
+    const bmNames = data.benchmarks ?? { sh000832: '中证转债' };
+    const bmSeries: LineSeriesOption[] = [];
+    for (const [code, label] of Object.entries(bmNames)) {
+      const rows = data.nav.map((x) => x.bm?.[code] ?? (code === 'sh000832' ? x.bm_close ?? null : null));
+      const firstIdx = rows.findIndex((v) => v != null);
+      if (firstIdx < 0) continue;
+      const b0 = rows[firstIdx] as number;
+      const pts = rows.map((v, i) => (i < firstIdx || v == null ? null : +((v / b0) * 100).toFixed(2)));
+      bmSeries.push({
+        name: label, type: 'line', data: pts, showSymbol: false,
+        lineStyle: { width: 1.3, type: code === 'sh000832' ? 'dashed' : 'solid' },
+        color: BM_COLORS[code] ?? '#b0b8c4',
+      });
+    }
     return {
       grid: { left: 8, right: 8, top: 28, bottom: 0, containLabel: true },
       legend: { top: 0, left: 'center', textStyle: { fontSize: 11 } },
@@ -57,7 +76,7 @@ export default function CbPaperPanel() {
       yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10, formatter: (v: number) => `${v}` } },
       series: [
         { name: '模拟盘', type: 'line', data: rets, showSymbol: false, lineStyle: { width: 2 }, color: '#b8860b' },
-        ...(bm0 ? [{ name: '中证转债', type: 'line' as const, data: bm, showSymbol: false, lineStyle: { width: 1.5, type: 'dashed' as const }, color: '#8a94a6' }] : []),
+        ...bmSeries,
       ],
     };
   }, [data]);

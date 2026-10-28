@@ -13,5 +13,11 @@
   "nopulse_days": 30,
   "nopulse_max_gain": 0.02,
   "benchmark": "sh000832",
+  "benchmarks": {
+    "sh000832": "中证转债",
+    "sz399006": "创业板指",
+    "sh000905": "中证500",
+    "sh000922": "中证红利"
+  },
   "exclude_st": true
 }

@@ -29,11 +29,21 @@ H = {"User-Agent": UA, "Referer": "https://data.eastmoney.com/"}
 
 # ---------- 数据 ----------
 def cached(name, fn):
+    """按日缓存; 但当日 15:10(北京时间) 前取的快照在收盘后失效, 避免盘中午跑挡住收盘数据"""
     p = os.path.join(CACHE, f'{_today}_{name}')
+    tz = datetime.timezone(datetime.timedelta(hours=8))
     if os.path.exists(p):
-        return json.load(open(p))
+        try:
+            box = json.load(open(p))
+            if box.get('d') == _today:
+                ts = box.get('ts', 0)
+                hour = datetime.datetime.fromtimestamp(ts, tz=tz).hour
+                if hour >= 15 or datetime.datetime.now(tz).hour < 15:
+                    return box['v']
+        except Exception:
+            pass
     v = fn()
-    json.dump(v, open(p, 'w'), ensure_ascii=False)
+    json.dump({'d': _today, 'ts': time.time(), 'v': v}, open(p, 'w'), ensure_ascii=False)
     return v
 
 def fetch_universe():
@@ -63,11 +73,11 @@ def fetch_hist(code, days=60):
         return out[-days:]
     return cached(f'h_{code}.json', _f)
 
-def fetch_bm(code):
+def fetch_bm(code, count=250):
     def _f():
         try:
             r = requests.get("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
-                params={"param": f"{code},day,,,10,qfq"}, headers=H, timeout=20)
+                params={"param": f"{code},day,,,{count},qfq"}, headers=H, timeout=20)
             d = r.json()["data"][code]
             k = d.get("qfqday") or d.get("day")
             return [[x[0], float(x[2])] for x in k]
@@ -229,17 +239,22 @@ def main():
     pos_value = sum(close_on(hists[c], today) * p["shares"]
                     for c, p in state["positions"].items() if close_on(hists[c], today))
     nav = state["cash"] + pos_value
-    bm = fetch_bm(CFG["benchmark"])
-    bm_row = next((x for x in bm if x[0] == today), None)
+    BMS = CFG.get("benchmarks") or {CFG.get("benchmark", "sh000832"): "中证转债"}
+    bms = {}
+    for bm_code in BMS:
+        bm = fetch_bm(bm_code)
+        row = next((x for x in bm if x[0] == today), None)
+        if row:
+            bms[bm_code] = row[1]
     navs = load('nav.json', [])
     base_nav = CFG["initial_cash"]
     navs.append({"date": today, "nav": round(nav, 2),
                  "ret": round((nav / base_nav - 1) * 100, 2),
-                 "bm_close": bm_row[1] if bm_row else None})
+                 "bm": bms, "bm_close": bms.get("sh000832")})
     save('nav.json', navs); save('state.json', state)
 
     # ---- 5.5) 导出 dashboard 数据 ----
-    pub = {"updated": today, "config": CFG,
+    pub = {"updated": today, "config": CFG, "benchmarks": BMS,
            "nav": navs,
            "cash": round(state["cash"], 2),
            "nav_now": round(nav, 2),
@@ -257,7 +272,7 @@ def main():
     first_bm = bm[0][1] if bm else None
     lines = [f"# 可转债模拟盘日报  {today}", "",
              f"- 净值: **{nav:,.0f}** ({(nav/CFG['initial_cash']-1)*100:+.2f}%)  现金 {state['cash']:,.0f}",
-             f"- 基准(中证转债): {bm_row[1] if bm_row else 'N/A'}", "",
+             f"- 基准收盘: " + "  ".join(f"{BMS[c]} {v:.2f}" for c, v in bms.items()), "",
              "## 持仓", "", "| 代码 | 名称 | 张数 | 成本 | 现价 | 盈亏% | 溢价% | 5日溢价Δ |", "|---|---|---|---|---|---|---|---|"]
     for c, p in sorted(state["positions"].items()):
         px = close_on(hists.get(c, []), today) or 0

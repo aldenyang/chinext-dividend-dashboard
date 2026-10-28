@@ -1,0 +1,112 @@
+[
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "123109",
+  "name": "昌红转债",
+  "amount": 99849.15,
+  "reason": "溢价5日+19pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 127.82,
+  "shares": 780
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "118052",
+  "name": "浩瀚转债",
+  "amount": 99091.17,
+  "reason": "溢价5日+18pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 139.356,
+  "shares": 710
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "123080",
+  "name": "海波转债",
+  "amount": 99709.5,
+  "reason": "溢价5日+16pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 119.952,
+  "shares": 830
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "118039",
+  "name": "煜邦转债",
+  "amount": 99536.61,
+  "reason": "溢价5日+16pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 125.807,
+  "shares": 790
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "113665",
+  "name": "汇通转债",
+  "amount": 99276.49,
+  "reason": "溢价5日+15pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 122.38,
+  "shares": 810
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "123224",
+  "name": "宇邦转债",
+  "amount": 98904.05,
+  "reason": "溢价5日+12pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 129.942,
+  "shares": 760
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "118035",
+  "name": "国力转债",
+  "amount": 99960.8,
+  "reason": "溢价5日+12pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 146.781,
+  "shares": 680
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "113680",
+  "name": "丽岛转债",
+  "amount": 99828.08,
+  "reason": "溢价5日+11pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 131.156,
+  "shares": 760
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "113686",
+  "name": "泰瑞转债",
+  "amount": 98775.85,
+  "reason": "溢价5日+11pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 142.939,
+  "shares": 690
+ },
+ {
+  "date": "2026-10-28",
+  "action": "buy",
+  "code": "118007",
+  "name": "山石转债",
+  "amount": 98917.67,
+  "reason": "溢价5日+11pp",
+  "signal_date": "2026-10-27",
+  "fill_price": 139.112,
+  "shares": 710
+ }
+]

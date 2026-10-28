@@ -1,88 +1,88 @@
 {
- "cash": 1000000,
- "positions": {},
- "pending": [
-  {
-   "action": "buy",
+ "cash": 6150.618740000034,
+ "positions": {
+  "123109": {
    "code": "123109",
    "name": "昌红转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+19pp",
-   "signal_date": "2026-10-27"
+   "shares": 780,
+   "cost_avg": 128.01173,
+   "entry_date": "2026-10-28",
+   "peak": 127.82
   },
-  {
-   "action": "buy",
+  "118052": {
    "code": "118052",
    "name": "浩瀚转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+18pp",
-   "signal_date": "2026-10-27"
+   "shares": 710,
+   "cost_avg": 139.565034,
+   "entry_date": "2026-10-28",
+   "peak": 139.356
   },
-  {
-   "action": "buy",
+  "123080": {
    "code": "123080",
    "name": "海波转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+16pp",
-   "signal_date": "2026-10-27"
+   "shares": 830,
+   "cost_avg": 120.13192800000002,
+   "entry_date": "2026-10-28",
+   "peak": 119.952
   },
-  {
-   "action": "buy",
+  "118039": {
    "code": "118039",
    "name": "煜邦转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+16pp",
-   "signal_date": "2026-10-27"
+   "shares": 790,
+   "cost_avg": 125.99571050000002,
+   "entry_date": "2026-10-28",
+   "peak": 125.807
   },
-  {
-   "action": "buy",
+  "113665": {
    "code": "113665",
    "name": "汇通转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+15pp",
-   "signal_date": "2026-10-27"
+   "shares": 810,
+   "cost_avg": 122.56357000000001,
+   "entry_date": "2026-10-28",
+   "peak": 122.38
   },
-  {
-   "action": "buy",
+  "123224": {
    "code": "123224",
    "name": "宇邦转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+12pp",
-   "signal_date": "2026-10-27"
+   "shares": 760,
+   "cost_avg": 130.13691300000002,
+   "entry_date": "2026-10-28",
+   "peak": 129.942
   },
-  {
-   "action": "buy",
+  "118035": {
    "code": "118035",
    "name": "国力转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+12pp",
-   "signal_date": "2026-10-27"
+   "shares": 680,
+   "cost_avg": 147.0011715,
+   "entry_date": "2026-10-28",
+   "peak": 146.781
   },
-  {
-   "action": "buy",
+  "113680": {
    "code": "113680",
    "name": "丽岛转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+11pp",
-   "signal_date": "2026-10-27"
+   "shares": 760,
+   "cost_avg": 131.352734,
+   "entry_date": "2026-10-28",
+   "peak": 131.156
   },
-  {
-   "action": "buy",
+  "113686": {
    "code": "113686",
    "name": "泰瑞转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+11pp",
-   "signal_date": "2026-10-27"
+   "shares": 690,
+   "cost_avg": 143.15340849999998,
+   "entry_date": "2026-10-28",
+   "peak": 142.939
   },
-  {
-   "action": "buy",
+  "118007": {
    "code": "118007",
    "name": "山石转债",
-   "amount": 100000.0,
-   "reason": "溢价5日+11pp",
-   "signal_date": "2026-10-27"
+   "shares": 710,
+   "cost_avg": 139.32066799999998,
+   "entry_date": "2026-10-28",
+   "peak": 139.112
   }
- ],
- "last_date": "2026-10-27",
+ },
+ "pending": [],
+ "last_date": "2026-10-28",
  "started": "2026-10-27"
 }

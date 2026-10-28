@@ -31,8 +31,26 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests
+          npm ci
+
+      # 主数据更新并入本工作流: GitHub 高峰期常丢弃/延迟上午的 update-data cron,
+      # 收盘后这条链路(15:45/16:45)承担全站数据刷新
+      - name: Run index data update
+        id: data
+        run: |
+          set +e
+          npm run data:update
+          echo "data_exit=$?" >> "$GITHUB_OUTPUT"
+          exit 0
 
       - name: Run paper engine
         id: run
@@ -49,12 +67,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/cb/paper public/cb_paper.json reports/cb_paper_latest.md
+          git add data/cb/paper public/cb_paper.json reports/cb_paper_latest.md public/data
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "模拟盘无新数据（非交易日或已处理），跳过提交"
+            echo "无新数据（非交易日或已处理），跳过提交"
           else
-            git commit -m "chore(cb-paper): daily paper trading update $(date -u +%F-%H:%M UTC)"
+            git commit -m "chore(data): daily data + paper trading update $(date -u +%F-%H:%M UTC)"
             git pull --rebase origin ${GITHUB_REF_NAME} || true
             git push origin HEAD:${GITHUB_REF_NAME}
             echo "changed=true" >> "$GITHUB_OUTPUT"

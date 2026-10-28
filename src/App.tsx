@@ -9,6 +9,7 @@ import StrategyPanel from './components/StrategyPanel/StrategyPanel';
 import TimeRangeSelector from './components/TimeRangeSelector/TimeRangeSelector';
 import ExplanationModal from './components/ExplanationModal/ExplanationModal';
 import MainChart, { type RangeKey, type Granularity } from './components/charts/MainChart';
+import CbPaperPanel from './components/CbPaperPanel/CbPaperPanel';
 
 function Skeleton() {
   return (
@@ -108,6 +109,7 @@ export default function App() {
             </p>
           </>
         )}
+        <CbPaperPanel />
       </main>
 
       <ExplanationModal open={modalOpen} onClose={() => setModalOpen(false)} />

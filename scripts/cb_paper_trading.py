@@ -180,18 +180,26 @@ def main():
     state["pending"] = still_pending
 
     # ---- 2) 检查持仓退出信号 (今日出信号, 明日成交) ----
+    # 规则(源自卖出法证+反事实验证, 规则E):
+    #   1) 脉冲移动止盈: 持有期涨幅曾≥pulse_gain 后, 从峰值回撤≥exit_pullback -> 卖
+    #   2) 无脉冲时间退出: 持有≥nopulse_days 且段内峰值涨幅<nopulse_max_gain -> 卖
+    #   无绝对止损(反事实显示止损拖累收益且规则2已收窄尾部风险)
     pending_new = []
     for code, pos in state["positions"].items():
         m = mets.get(code); h = hists.get(code, [])
         if not m:
             continue
+        px = m["price"]
+        pos["peak"] = max(pos.get("peak") or px, px)
+        gain_peak = pos["peak"] / pos["cost_avg"] - 1 if pos["cost_avg"] else 0
+        pullback = 1 - px / pos["peak"] if pos["peak"] else 0
         idx = {r[0]: k for k, r in enumerate(h)}
         hold_days = idx.get(today, 0) - idx.get(pos["entry_date"], 0)
         reason = None
-        if hold_days >= CFG["exit_hold_days"]: reason = f"持有满{hold_days}日"
-        elif (m["p5"] or 0) < CFG["exit_prem_shrink"]: reason = f"溢价5日收缩{m['p5']:.0f}pp"
-        elif m["price"] >= CFG["exit_price_hi"]: reason = f"价格起飞至{m['price']:.1f}"
-        elif (m["price"] / pos["cost_avg"] - 1) * 100 < CFG["stop_loss"]: reason = "止损"
+        if gain_peak >= CFG["pulse_gain"] and pullback >= CFG["exit_pullback"]:
+            reason = f"脉冲止盈: 峰值+{gain_peak*100:.0f}%后回撤{pullback*100:.0f}%"
+        elif hold_days >= CFG["nopulse_days"] and gain_peak < CFG["nopulse_max_gain"]:
+            reason = f"{hold_days}日无脉冲(峰值+{gain_peak*100:.1f}%)"
         if reason:
             pending_new.append({"action": "sell", "code": code, "name": pos["name"],
                                 "reason": reason, "signal_date": today})
@@ -229,6 +237,21 @@ def main():
                  "ret": round((nav / base_nav - 1) * 100, 2),
                  "bm_close": bm_row[1] if bm_row else None})
     save('nav.json', navs); save('state.json', state)
+
+    # ---- 5.5) 导出 dashboard 数据 ----
+    pub = {"updated": today, "config": CFG,
+           "nav": navs,
+           "cash": round(state["cash"], 2),
+           "nav_now": round(nav, 2),
+           "positions": [{"code": c, "name": p["name"], "shares": p["shares"],
+                          "cost": round(p["cost_avg"], 2),
+                          "price": close_on(hists.get(c, []), today),
+                          "pnl_pct": round((close_on(hists.get(c, []), today) or 0) / p["cost_avg"] * 100 - 100, 1)
+                          if p["cost_avg"] else 0,
+                          "entry_date": p["entry_date"]} for c, p in state["positions"].items()],
+           "pending": state["pending"],
+           "trades": load('trades.json', [])[-50:]}
+    json.dump(pub, open(os.path.join(ROOT, 'public', 'cb_paper.json'), 'w'), ensure_ascii=False)
 
     # ---- 5) 报告 ----
     first_bm = bm[0][1] if bm else None

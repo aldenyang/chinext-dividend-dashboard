@@ -8,10 +8,10 @@
   "prem_max": 80.0,
   "prem_exp_min": 3.0,
   "takeoff_r3": 5.0,
-  "exit_hold_days": 20,
-  "exit_prem_shrink": -5.0,
-  "exit_price_hi": 150.0,
-  "stop_loss": -10.0,
+  "pulse_gain": 0.05,
+  "exit_pullback": 0.05,
+  "nopulse_days": 30,
+  "nopulse_max_gain": 0.02,
   "benchmark": "sh000832",
   "exclude_st": true
 }

@@ -5,3 +5,4 @@ dist
 .playwright-cli
 paper_cache/
 paper_cache/
+tsconfig.tsbuildinfo

@@ -6,3 +6,4 @@ dist
 paper_cache/
 paper_cache/
 tsconfig.tsbuildinfo
+.secrets/

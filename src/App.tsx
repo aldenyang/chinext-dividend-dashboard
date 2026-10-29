@@ -10,6 +10,7 @@ import TimeRangeSelector from './components/TimeRangeSelector/TimeRangeSelector'
 import ExplanationModal from './components/ExplanationModal/ExplanationModal';
 import MainChart, { type RangeKey, type Granularity } from './components/charts/MainChart';
 import CbPaperPanel from './components/CbPaperPanel/CbPaperPanel';
+import XqTrackPanel from './components/XqTrackPanel/XqTrackPanel';
 
 function Skeleton() {
   return (
@@ -110,6 +111,7 @@ export default function App() {
           </>
         )}
         <CbPaperPanel />
+        <XqTrackPanel />
       </main>
 
       <ExplanationModal open={modalOpen} onClose={() => setModalOpen(false)} />

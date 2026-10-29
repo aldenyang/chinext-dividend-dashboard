@@ -46,12 +46,23 @@ def cached(name, fn):
     json.dump({'d': _today, 'ts': time.time(), 'v': v}, open(p, 'w'), ensure_ascii=False)
     return v
 
+def _retry(fn, attempts=4, wait=2):
+    """网络请求统一重试: 偶发读超时不应杀死整个引擎"""
+    last = None
+    for k in range(attempts):
+        try:
+            return fn()
+        except Exception as e:
+            last = e
+            time.sleep(wait * (k + 1))
+    raise last
+
 def fetch_universe():
     rows, page = [], 1
     while True:
-        r = requests.get("https://datacenter-web.eastmoney.com/api/data/v1/get",
+        r = _retry(lambda: requests.get("https://datacenter-web.eastmoney.com/api/data/v1/get",
             params={"reportName": "RPT_BOND_CB_LIST", "columns": "ALL", "pageSize": 500,
-                    "pageNumber": page, "source": "WEB", "client": "WEB"}, headers=H, timeout=20)
+                    "pageNumber": page, "source": "WEB", "client": "WEB"}, headers=H, timeout=20))
         d = r.json()["result"]; rows += d["data"]
         if page >= d["pages"]: break
         page += 1
@@ -59,10 +70,10 @@ def fetch_universe():
 
 def fetch_hist(code, days=60):
     def _f():
-        r = requests.get("https://datacenter-web.eastmoney.com/api/data/get",
+        r = _retry(lambda: requests.get("https://datacenter-web.eastmoney.com/api/data/get",
             params={"sty": "ALL", "token": TOKEN, "st": "date", "sr": "1", "source": "WEB",
                     "type": "RPTA_WEB_KZZ_LS", "filter": f'(zcode="{code}")', "p": "1", "ps": "8000"},
-            headers=H, timeout=30)
+            headers=H, timeout=30))
         d = r.json().get("result") or {}
         out = []
         for row in d.get("data", []):
@@ -75,14 +86,11 @@ def fetch_hist(code, days=60):
 
 def fetch_bm(code, count=250):
     def _f():
-        try:
-            r = requests.get("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
-                params={"param": f"{code},day,,,{count},qfq"}, headers=H, timeout=20)
-            d = r.json()["data"][code]
-            k = d.get("qfqday") or d.get("day")
-            return [[x[0], float(x[2])] for x in k]
-        except Exception:
-            return []
+        r = _retry(lambda: requests.get("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
+            params={"param": f"{code},day,,,{count},qfq"}, headers=H, timeout=20))
+        d = r.json()["data"][code]
+        k = d.get("qfqday") or d.get("day")
+        return [[x[0], float(x[2])] for x in k]
     return cached(f'bm_{code}.json', _f)
 
 # ---------- 指标 ----------
@@ -242,10 +250,13 @@ def main():
     BMS = CFG.get("benchmarks") or {CFG.get("benchmark", "sh000832"): "中证转债"}
     bms = {}
     for bm_code in BMS:
-        bm = fetch_bm(bm_code)
-        row = next((x for x in bm if x[0] == today), None)
-        if row:
-            bms[bm_code] = row[1]
+        try:
+            bm = fetch_bm(bm_code)
+            row = next((x for x in bm if x[0] == today), None)
+            if row:
+                bms[bm_code] = row[1]
+        except Exception:
+            pass  # 单个基准失败不阻塞模拟盘
     navs = load('nav.json', [])
     base_nav = CFG["initial_cash"]
     navs.append({"date": today, "nav": round(nav, 2),

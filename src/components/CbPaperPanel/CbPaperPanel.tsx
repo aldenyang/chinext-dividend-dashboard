@@ -42,7 +42,8 @@ export default function CbPaperPanel() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}cb_paper.json`)
+    // 时间戳参数击穿浏览器/CDN 缓存，确保每次打开都取最新部署的数据
+    fetch(`${import.meta.env.BASE_URL}cb_paper.json?t=${Date.now()}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then(setData)
       .catch(() => setFailed(true));

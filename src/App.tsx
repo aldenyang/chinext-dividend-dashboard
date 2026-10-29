@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CircleAlert, RefreshCw, Info } from 'lucide-react';
 import { useMarketData } from './hooks/useMarketData';
@@ -35,12 +35,78 @@ export default function App() {
   const isMobile = useMediaQuery('(max-width: 639px)');
   const reduced = useReducedMotion();
 
+  // ---- 两级导航: 一级 仪表盘/可转债, 二级(CB内) 模拟盘/雪球组合; hash 记忆刷新不丢 ----
+  type TabKey = 'home' | 'cb';
+  type CbView = 'paper' | 'xq';
+  const initHash = () => {
+    const h = window.location.hash.replace('#', '');
+    if (h === 'paper') return { tab: 'cb' as TabKey, cbView: 'paper' as CbView };
+    if (h === 'xq') return { tab: 'cb' as TabKey, cbView: 'xq' as CbView };
+    return { tab: 'home' as TabKey, cbView: 'paper' as CbView };
+  };
+  const [init] = useState(initHash);
+  const [tab, setTab] = useState<TabKey>(init.tab);
+  const [cbView, setCbView] = useState<CbView>(init.cbView);
+
+  useEffect(() => {
+    window.location.hash = tab === 'home' ? '' : cbView;
+    if (tab !== 'home') window.scrollTo({ top: 0 });
+  }, [tab, cbView]);
+
+  const mainTab = (key: TabKey, label: string) => (
+    <button
+      key={key}
+      type="button"
+      onClick={() => setTab(key)}
+      className={`min-h-[36px] rounded-full px-4 text-sm font-medium transition-colors ${
+        tab === key ? 'bg-ink text-white shadow-sm' : 'text-inkSecondary hover:text-ink'
+      }`}
+    >
+      {label}
+    </button>
+  );
+  const subTab = (key: CbView, label: string) => (
+    <button
+      key={key}
+      type="button"
+      onClick={() => setCbView(key)}
+      className={`min-h-[32px] rounded-full px-3.5 text-xs font-medium transition-colors sm:text-[13px] ${
+        cbView === key ? 'bg-ink text-white shadow-sm' : 'text-inkSecondary hover:text-ink'
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div className="min-h-dvh bg-page pb-16 text-ink antialiased">
       <Header meta={meta} onRefresh={() => void refresh()} checking={checking} justUpdated={justUpdated} />
 
       <main className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        {status === 'loading' && <Skeleton />}
+        {/* 一级导航 */}
+        <div className="mt-4 flex justify-center">
+          <div className="inline-flex items-center gap-1 rounded-full bg-white/70 p-1 shadow-sm ring-1 ring-ink/10 backdrop-blur">
+            {mainTab('home', '比值仪表盘')}
+            {mainTab('cb', '可转债')}
+          </div>
+        </div>
+
+        {/* 二级菜单(可转债内) */}
+        {tab === 'cb' && (
+          <div className="mt-3 flex justify-center">
+            <div className="inline-flex items-center gap-1 rounded-full bg-white/60 p-1 ring-1 ring-ink/10">
+              {subTab('paper', '策略模拟盘')}
+              {subTab('xq', '雪球组合')}
+            </div>
+          </div>
+        )}
+
+        {tab === 'cb' && cbView === 'paper' && <CbPaperPanel />}
+        {tab === 'cb' && cbView === 'xq' && <XqTrackPanel />}
+
+        {tab === 'home' && (
+          <>
+            {status === 'loading' && <Skeleton />}
 
         {status === 'error' && !records.length && (
           <div className="mt-10 flex flex-col items-center gap-3 rounded-2xl bg-white p-10 text-center shadow-card ring-1 ring-ink/5">
@@ -110,8 +176,8 @@ export default function App() {
             </p>
           </>
         )}
-        <CbPaperPanel />
-        <XqTrackPanel />
+          </>
+        )}
       </main>
 
       <ExplanationModal open={modalOpen} onClose={() => setModalOpen(false)} />

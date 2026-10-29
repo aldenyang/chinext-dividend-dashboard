@@ -52,14 +52,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # rebase 应对与 Update Data 工作流的并发提交
-          git pull --rebase origin ${GITHUB_REF_NAME} || true
           git add data/cb/paper public/cb_paper.json reports/cb_paper_latest.md
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "模拟盘无新数据（非交易日或已处理），跳过提交"
           else
             git commit -m "chore(cb-paper): daily paper trading update $(date -u +%F-%H:%M UTC)"
+            # 先提交再 rebase（rebase 要求干净工作树），应对与 Update Data 的并发推送
+            git pull --rebase origin ${GITHUB_REF_NAME} || true
             git push origin HEAD:${GITHUB_REF_NAME}
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

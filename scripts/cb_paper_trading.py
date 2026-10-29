@@ -144,6 +144,9 @@ def main():
                      "st": "sti" in rating if CFG["exclude_st"] else False})
     with ThreadPoolExecutor(max_workers=8) as ex:
         hists = dict(zip([c["code"] for c in pool], ex.map(fetch_hist, [c["code"] for c in pool])))
+    # 数据毛刺防护: 丢弃任何晚于北京当前日期的历史行(接口异常时会偶发未来日期, 污染处理日)
+    _bj_date = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date().isoformat()
+    hists = {c: [r for r in h if r[0] <= _bj_date] for c, h in hists.items()}
     # 处理日 = 全池最新交易日
     today = max((h[-1][0] for h in hists.values() if h), default=None)
     if not today:
@@ -280,7 +283,6 @@ def main():
     json.dump(pub, open(os.path.join(ROOT, 'public', 'cb_paper.json'), 'w'), ensure_ascii=False)
 
     # ---- 5) 报告 ----
-    first_bm = bm[0][1] if bm else None
     lines = [f"# 可转债模拟盘日报  {today}", "",
              f"- 净值: **{nav:,.0f}** ({(nav/CFG['initial_cash']-1)*100:+.2f}%)  现金 {state['cash']:,.0f}",
              f"- 基准收盘: " + "  ".join(f"{BMS[c]} {v:.2f}" for c, v in bms.items()), "",

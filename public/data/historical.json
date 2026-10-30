@@ -24766,5 +24766,11 @@
     "chinextClose": 2517.59,
     "dividendClose": 5546.77,
     "ratio": 0.453884
+  },
+  {
+    "date": "2026-10-30",
+    "chinextClose": 2413.63,
+    "dividendClose": 5592.45,
+    "ratio": 0.431587
   }
 ]

@@ -82,7 +82,15 @@
    "peak": 139.112
   }
  },
- "pending": [],
- "last_date": "2026-11-12",
+ "pending": [
+  {
+   "action": "sell",
+   "code": "113686",
+   "name": "泰瑞转债",
+   "reason": "脉冲止盈: 峰值+10%后回撤7%",
+   "signal_date": "2026-11-13"
+  }
+ ],
+ "last_date": "2026-11-13",
  "started": "2026-10-27"
 }

@@ -108,5 +108,17 @@
   "signal_date": "2026-10-27",
   "fill_price": 139.112,
   "shares": 710
+ },
+ {
+  "date": "2026-11-17",
+  "action": "sell",
+  "code": "113686",
+  "name": "泰瑞转债",
+  "reason": "脉冲止盈: 峰值+10%后回撤11%",
+  "signal_date": "2026-11-16",
+  "fill_price": 139.085,
+  "shares": 690,
+  "amount": 95824.7,
+  "pnl": -2951.15
  }
 ]

@@ -120,5 +120,16 @@
   "shares": 690,
   "amount": 95824.7,
   "pnl": -2951.15
+ },
+ {
+  "date": "2026-11-18",
+  "action": "buy",
+  "code": "123138",
+  "name": "丝路转债",
+  "amount": 101220.7,
+  "reason": "溢价5日+23pp",
+  "signal_date": "2026-11-17",
+  "fill_price": 121.77,
+  "shares": 830
  }
 ]

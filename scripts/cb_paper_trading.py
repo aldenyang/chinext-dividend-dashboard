@@ -158,11 +158,27 @@ def main():
     if state["last_date"] == today:
         print(f"{today} 已处理过, 幂等退出"); return
 
+    # 持仓债即使跌出筛选池(如已定摘牌日的强赎债)也必须有历史数据, 否则估值/退出检查崩溃或被跳过
+    _missing_pos = [c for c in state["positions"] if c not in hists]
+    if _missing_pos:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            _extra = dict(zip(_missing_pos, ex.map(fetch_hist, _missing_pos)))
+        hists.update({c: [r for r in h if r[0] <= _bj_date] for c, h in _extra.items()})
+
     mets = {}
     for c in pool:
         h = hists[c["code"]]
         m = metrics(h)
         if m: mets[c["code"]] = {**c, **m}
+    # 持仓债不在池内时也要算指标, 否则退出信号会被静默跳过
+    for code, pos in state["positions"].items():
+        if code not in mets and hists.get(code):
+            m = metrics(hists[code])
+            if m: mets[code] = {"code": code, "name": pos["name"], "st": False, **m}
+
+    # 已定摘牌日(强赎/到期)的债, 到期前必须退出
+    delist_map = {u["SECURITY_CODE"]: (u.get("DELIST_DATE") or "")[:10]
+                  for u in uni if u.get("DELIST_DATE")}
 
     # ---- 1) 成交昨日挂单 (T+1收盘) ----
     fills, still_pending = [], []
@@ -208,6 +224,11 @@ def main():
     pending_new = []
     for code, pos in state["positions"].items():
         m = mets.get(code); h = hists.get(code, [])
+        # 优先级最高: 已定摘牌日 -> 立即挂卖(强赎/到期绝不应扛到摘牌)
+        if delist_map.get(code):
+            pending_new.append({"action": "sell", "code": code, "name": pos["name"],
+                                "reason": f"强赎/摘牌({delist_map[code]})", "signal_date": today})
+            continue
         if not m:
             continue
         px = m["price"]
@@ -247,8 +268,8 @@ def main():
     state["last_date"] = today
 
     # ---- 4) 净值 ----
-    pos_value = sum(close_on(hists[c], today) * p["shares"]
-                    for c, p in state["positions"].items() if close_on(hists[c], today))
+    pos_value = sum(close_on(hists.get(c, []), today) * p["shares"]
+                    for c, p in state["positions"].items() if close_on(hists.get(c, []), today))
     nav = state["cash"] + pos_value
     BMS = CFG.get("benchmarks") or {CFG.get("benchmark", "sh000832"): "中证转债"}
     bms = {}

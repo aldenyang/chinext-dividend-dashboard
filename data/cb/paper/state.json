@@ -79,10 +79,18 @@
    "shares": 830,
    "cost_avg": 121.952655,
    "entry_date": "2026-11-18",
-   "peak": 122.749
+   "peak": 126.99
   }
  },
- "pending": [],
- "last_date": "2026-11-24",
+ "pending": [
+  {
+   "action": "sell",
+   "code": "123080",
+   "name": "海波转债",
+   "reason": "强赎/摘牌(2026-12-02)",
+   "signal_date": "2026-11-27"
+  }
+ ],
+ "last_date": "2026-11-27",
  "started": "2026-10-27"
 }
